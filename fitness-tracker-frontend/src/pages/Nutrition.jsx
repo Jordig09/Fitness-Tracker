@@ -3,7 +3,9 @@ import { DateContext } from "../context/DateContext";
 import api from "../services/api";
 
 const Nutrition = () => {
-  const { activeDate, isEditing } = useContext(DateContext);
+  // Trae dailyLog y updateDailyLogLocally desde memoria
+  const { activeDate, isEditing, dailyLog, updateDailyLogLocally } =
+    useContext(DateContext);
   const [formData, setFormData] = useState({
     food_rating: "",
     breakfast_notes: "",
@@ -12,36 +14,26 @@ const Nutrition = () => {
     dinner_notes: "",
   });
 
-  // Buscar los datos al cargar el día
+  // Lee de dailyLog la información
   useEffect(() => {
-    const fetchDailyLog = async () => {
-      try {
-        const response = await api.get(`/daily-logs/${activeDate}`);
-        if (response.data) {
-          setFormData({
-            food_rating: response.data.food_rating || "",
-            breakfast_notes: response.data.breakfast_notes || "",
-            lunch_notes: response.data.lunch_notes || "",
-            snack_notes: response.data.snack_notes || "",
-            dinner_notes: response.data.dinner_notes || "",
-          });
-        } else {
-          // Limpiar si es un día nuevo sin datos
-          setFormData({
-            food_rating: "",
-            breakfast_notes: "",
-            lunch_notes: "",
-            snack_notes: "",
-            dinner_notes: "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching daily log:", error);
-      }
-    };
-
-    fetchDailyLog();
-  }, [activeDate]);
+    if (dailyLog) {
+      setFormData({
+        food_rating: dailyLog.food_rating || "",
+        breakfast_notes: dailyLog.breakfast_notes || "",
+        lunch_notes: dailyLog.lunch_notes || "",
+        snack_notes: dailyLog.snack_notes || "",
+        dinner_notes: dailyLog.dinner_notes || "",
+      });
+    } else {
+      setFormData({
+        food_rating: "",
+        breakfast_notes: "",
+        lunch_notes: "",
+        snack_notes: "",
+        dinner_notes: "",
+      });
+    }
+  }, [dailyLog]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,13 +41,9 @@ const Nutrition = () => {
 
   const handleSave = async () => {
     try {
-      // 1. Buscamos el estado actual del día para no borrar los datos de básquet
-      const currentLogRes = await api.get(`/daily-logs/${activeDate}`);
-      const currentData = currentLogRes.data || {};
-
-      // 2. Mezclamos los datos existentes (básquet) con los nuevos de alimentación
+      // Usa dailyLog de la memoria
       const payload = {
-        ...currentData,
+        ...dailyLog,
         date: activeDate,
         food_rating: formData.food_rating,
         breakfast_notes: formData.breakfast_notes,
@@ -64,8 +52,12 @@ const Nutrition = () => {
         dinner_notes: formData.dinner_notes,
       };
 
-      // 3. Enviamos el paquete completo
+      // 1. Guarda en BD
       await api.post("/daily-logs", payload);
+
+      // 2. Actualiza la memoria
+      updateDailyLogLocally(payload);
+
       alert("Datos de alimentación guardados correctamente");
     } catch (error) {
       console.error("Error saving nutrition:", error);

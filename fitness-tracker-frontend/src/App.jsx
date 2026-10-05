@@ -21,7 +21,7 @@ function App() {
           <Route path="/nutrition" element={<Nutrition />} />
         </Routes>
       </main>
-      <NavBar /> {/* El NavBar debe ir al final */}
+      <NavBar />
     </div>
   );
 }

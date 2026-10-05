@@ -8,7 +8,7 @@ const CalendarView = () => {
   const { setActiveDateObj } = useContext(DateContext);
   const navigate = useNavigate();
 
-  // Estado para controlar qué mes estamos viendo en el calendario
+  // Estado para controlar qué mes se está viendo en el calendario
   const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
 
   const iconSize = "20";
@@ -16,15 +16,23 @@ const CalendarView = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
+        // Mostrar instantáneamente los datos guardados del calendario
+        const cachedSummary = localStorage.getItem("calendar_summary");
+        if (cachedSummary) {
+          setSummaryMap(JSON.parse(cachedSummary));
+        }
+
+        // Pedir la información más reciente de fondo
         const res = await api.get("/daily-logs/summary/calendar");
-        // Convertimos el array en un diccionario { 'YYYY-MM-DD': datosDelDia } para búsqueda rápida
         const dataMap = {};
         res.data.forEach((day) => {
-          // Extraemos solo la parte YYYY-MM-DD para evitar problemas de zona horaria
           const dateString = day.date.split("T")[0];
           dataMap[dateString] = day;
         });
+
+        // Guarda en estado y en caché
         setSummaryMap(dataMap);
+        localStorage.setItem("calendar_summary", JSON.stringify(dataMap));
       } catch (error) {
         console.error("Error fetching calendar summary", error);
       }
@@ -35,27 +43,26 @@ const CalendarView = () => {
   const getFoodColor = (rating) => {
     switch (rating) {
       case "Muy Buena":
-        return "var(--food-muy-buena)";
+        return "var(--food-muy-buena, #d4edda)";
       case "Buena":
-        return "var(--food-buena)";
+        return "var(--food-buena, #e2f3e5)";
       case "Regular":
-        return "var(--food-regular)";
+        return "var(--food-regular, #fff3cd)";
       case "Mala":
-        return "var(--food-mala)";
+        return "var(--food-mala, #f8d7da)";
       case "Muy Mala":
-        return "var(--food-muy-mala)";
+        return "var(--food-muy-mala, #f5c6cb)";
       default:
-        return "var(--food-none)";
+        return "var(--food-none, #f8f9fa)";
     }
   };
 
   const handleDayClick = (dateString) => {
     const newDate = new Date(dateString + "T12:00:00");
     setActiveDateObj(newDate);
-    navigate("/"); // Redirige al inicio
+    navigate("/");
   };
 
-  // Funciones para navegar entre meses
   const nextMonth = () => {
     setCurrentMonthDate(
       new Date(
@@ -76,14 +83,12 @@ const CalendarView = () => {
     );
   };
 
-  // Lógica de construcción del calendario
   const year = currentMonthDate.getFullYear();
   const month = currentMonthDate.getMonth(); // 0 a 11
 
-  const daysInMonth = new Date(year, month + 1, 0).getDate(); // Cuántos días tiene el mes
-  const firstDayIndex = new Date(year, month, 1).getDay(); // Qué día de la semana empieza (0 = Dom, 6 = Sab)
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayIndex = new Date(year, month, 1).getDay();
 
-  // Nombres de los meses y días para la UI
   const monthNames = [
     "Enero",
     "Febrero",
@@ -100,30 +105,26 @@ const CalendarView = () => {
   ];
   const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-  // Construimos el array de casilleros (espacios vacíos + días del mes)
   const calendarCells = [];
 
-  // 1. Espacios vacíos antes del primer día del mes
   for (let i = 0; i < firstDayIndex; i++) {
     calendarCells.push(
       <div key={`empty-${i}`} style={{ padding: "0.5rem" }}></div>,
     );
   }
 
-  // 2. Días reales del mes
   for (let day = 1; day <= daysInMonth; day++) {
-    // Formateamos a YYYY-MM-DD para cruzar con nuestro diccionario
     const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const dayData = summaryMap[dateString];
 
-    const dayData = summaryMap[dateString]; // Buscamos si hay info para ese día
-
-    // Si hay datos, usamos su color de comida, sino gris por defecto.
     const bgColor = dayData
       ? getFoodColor(dayData.food_rating)
-      : "var(--food-none)";
+      : "var(--food-none, #f8f9fa)";
     const textColor =
       dayData &&
-      (dayData.food_rating === "Mala" || dayData.food_rating === "Muy Buena")
+      (dayData.food_rating === "Mala" ||
+        dayData.food_rating === "Muy Buena" ||
+        dayData.food_rating === "Muy Mala")
         ? "white"
         : "#333";
 
@@ -171,17 +172,17 @@ const CalendarView = () => {
               width={iconSize}
               height={iconSize}
               viewBox="0 0 48 48"
-              fill="#currentColor"
+              fill="currentColor"
             >
               <g
                 fill="none"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="3"
               >
                 <path d="M9.102 13.727c.032-1.321.78-2.503 2.092-2.656c.378-.043.812-.071 1.306-.071s.928.028 1.306.072c1.313.152 2.06 1.334 2.092 2.655c.047 1.944.102 5.29.102 10.273s-.055 8.329-.102 10.273c-.032 1.321-.78 2.503-2.092 2.656c-.378.043-.812.071-1.306.071s-.928-.028-1.306-.071c-1.313-.153-2.06-1.335-2.092-2.656C9.055 32.329 9 28.983 9 24s.055-8.329.102-10.273m29.796 0c-.032-1.321-.78-2.503-2.092-2.656c-.378-.043-.812-.071-1.306-.071s-.928.028-1.306.072c-1.313.152-2.06 1.334-2.092 2.655C32.055 15.671 32 19.017 32 24s.055 8.329.102 10.273c.032 1.321.78 2.503 2.092 2.656c.378.043.812.071 1.306.071s.928-.028 1.306-.071c1.313-.153 2.06-1.335 2.092-2.656c.047-1.944.102-5.29.102-10.273s-.055-8.329-.102-10.273" />
-                <path d="M15.993 26.982a1293 1293 0 0 0 16.014-.013m-.001-5.939c-2.414-.017-5.4-.03-9.007-.03c-2.668 0-4.998.007-7.007.018M3.055 18.803c.036-1.49.984-2.748 2.474-2.796a15 15 0 0 1 .942 0c1.49.048 2.438 1.305 2.474 2.796C8.975 20.026 9 21.739 9 24s-.026 3.974-.055 5.197c-.036 1.49-.984 2.748-2.474 2.796a15 15 0 0 1-.942 0c-1.49-.048-2.438-1.305-2.474-2.796C3.025 27.974 3 26.261 3 24s.026-3.974.055-5.197m41.89 0c-.036-1.49-.984-2.748-2.474-2.796a15 15 0 0 0-.942 0c-1.49.048-2.438 1.305-2.474 2.796C39.025 20.026 39 21.739 39 24s.026 3.974.055 5.197c.036 1.49.984 2.748 2.474 2.796a15 15 0 0 0 .942 0c1.49-.048 2.438-1.305 2.474-2.796c.03-1.223.055-2.936.055-5.197s-.026-3.974-.055-5.197" />
+                <path d="M15.993 26.982a1293 1293 0 0 0 16.014-.013m-.001-5.939c-2.414-.017-5.4-.03-9.007-.03c-2.668 0-4.998.007-7.007.018M3.055 18.803c.036-1.49.984-2.748 2.474-2.796a15 15 0 0 1 .942 0c1.49.048 2.438 1.305 2.474 2.796C8.975 20.026 9 21.739 9 24s-.026 3.974-.055 5.197c-.036 1.49-.984 2.748-2.474-2.796a15 15 0 0 1-.942 0c-1.49-.048-2.438-1.305-2.474-2.796C3.025 27.974 3 26.261 3 24s.026-3.974.055-5.197m41.89 0c-.036-1.49-.984-2.748-2.474-2.796a15 15 0 0 0-.942 0c-1.49.048-2.438 1.305-2.474-2.796C39.025 20.026 39 21.739 39 24s.026 3.974.055 5.197c.036 1.49.984 2.748 2.474 2.796a15 15 0 0 0 .942 0c1.49-.048 2.438-1.305-2.474-2.796c.03-1.223.055-2.936.055-5.197s-.026-3.974-.055-5.197" />
               </g>
             </svg>
           )}
@@ -192,7 +193,6 @@ const CalendarView = () => {
 
   return (
     <div>
-      {/* Cabecera del Calendario */}
       <div
         style={{
           display: "flex",
@@ -229,7 +229,6 @@ const CalendarView = () => {
         Toca un día para seleccionarlo y ver sus detalles.
       </p>
 
-      {/* Grilla de días de la semana */}
       <div
         style={{
           display: "grid",
@@ -246,7 +245,6 @@ const CalendarView = () => {
         ))}
       </div>
 
-      {/* Grilla del calendario */}
       <div
         style={{
           display: "grid",

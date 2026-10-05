@@ -1,15 +1,59 @@
 :root {
+  /* Variables Modo Claro (Por defecto) */
   --bg-color: #f4f7f6;
   --text-color: #333;
   --primary: #007bff;
   --navbar-bg: #fff;
+  --input-bg: #fff;
+  --border-color: #ccc;
+
   /* Colores del calendario para nutrición */
-  --food-muy-buena: #28a745; /* Verde */
-  --food-buena: #85e085; /* Verde claro */
-  --food-regular: #ffc107; /* Amarillo */
-  --food-mala: #dc3545; /* Rojo */
-  --food-muy-mala: #790914; /* Rojo oscuro */
-  --food-none: #e9ecef; /* Gris */
+  --food-muy-buena: #28a745;
+  --food-buena: #85e085;
+  --food-regular: #ffc107;
+  --food-mala: #dc3545;
+  --food-muy-mala: #790914;
+  --food-none: #e9ecef;
+
+  /* Colores para el Dashboard */
+  --card-default: #f8f9fa;
+  --card-completed: #ebffee;
+  --card-musculacion: #fff9c4;
+  --card-caminata: #e3f2fd;
+  --card-basquet: #ffe0b2;
+
+  /* Otros*/
+  --walking-bg: #e9f2ff;
+  --walking-color: #004085;
+}
+
+[data-theme="dark"] {
+  /* Variables Modo Oscuro */
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --primary: #339af0;
+  --navbar-bg: #1e1e1e;
+  --input-bg: #2c2c2c;
+  --border-color: #444;
+
+  /* Colores del calendario (Tonos más apagados) */
+  --food-muy-buena: #1e7e34;
+  --food-buena: #4caf50;
+  --food-regular: #b38600;
+  --food-mala: #bd2130;
+  --food-muy-mala: #5c0710;
+  --food-none: #2c2c2c;
+
+  /* Colores para el Dashboard (Tonos oscuros pastel) */
+  --card-default: #1e1e1e;
+  --card-completed: #17331c;
+  --card-musculacion: #4d491c;
+  --card-caminata: #1c355e;
+  --card-basquet: #543916;
+
+  /* Otros*/
+  --walking-bg: #1c355e;
+  --walking-color: #dfedfc;
 }
 
 * {
@@ -22,30 +66,40 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease; /* Transición suave */
 }
 
 .app-container {
-  max-width: 800px; /* En PC se verá como una columna central */
+  max-width: 800px;
   margin: 0 auto;
   background: var(--bg-color);
   min-height: 100vh;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
 .content {
   padding: 1rem;
-  padding-bottom: 80px; /* Espacio para el navbar si quisieras ponerlo abajo, pero usaremos menú superior/desplegable */
+  padding-bottom: 80px;
 }
 
-/* Clases auxiliares para formularios */
+/* Clases auxiliares para formularios (Añadidas variables para que se adapten al modo oscuro) */
 input,
 select,
 textarea,
 button {
   width: 100%;
   padding: 0.8rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }

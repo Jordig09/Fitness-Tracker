@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const NavBar = () => {
   const navStyle = {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--navbar-bg)",
     borderTop: "1px solid #eaeaea",
     display: "flex",
     justifyContent: "space-around",
@@ -17,6 +17,7 @@ const NavBar = () => {
     maxWidth: "800px", // Mantiene la alineación en PC
     margin: "0 auto",
     paddingBottom: "env(safe-area-inset-bottom)", // Soporte para la barra inferior del iPhone
+    transition: "background-color 0.3s ease, border-color 0.3s ease",
   };
 
   // Función para cambiar color si está activo
@@ -31,11 +32,11 @@ const NavBar = () => {
     gap: "4px",
   });
 
-  const iconSize = "26"; // Tamaño uniforme para todos
+  const iconSize = "26";
 
   return (
     <nav style={navStyle}>
-      {/* Dashboard (Casita) */}
+      {/* Dashboard */}
       <NavLink to="/" style={linkStyle}>
         <svg
           width={iconSize}
@@ -59,7 +60,7 @@ const NavBar = () => {
         </svg>
       </NavLink>
 
-      {/* Pesas */}
+      {/* Musculación */}
       <NavLink to="/weights" style={linkStyle}>
         <svg
           xmlns="http://www.w3.org/2000/svg"

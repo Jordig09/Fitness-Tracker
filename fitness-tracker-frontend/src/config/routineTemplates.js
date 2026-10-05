@@ -1,5 +1,3 @@
-// src/config/routineTemplates.js
-
 // Los IDs numéricos corresponden a tu tabla 'exercises' en PostgreSQL
 export const routineTemplates = {
   // 1 = Cuerpo completo

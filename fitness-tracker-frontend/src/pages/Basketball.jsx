@@ -3,37 +3,28 @@ import { DateContext } from "../context/DateContext";
 import api from "../services/api";
 
 const Basketball = () => {
-  const { activeDate, isEditing } = useContext(DateContext);
+  // Trae dailyLog y updateDailyLogLocally desde DateContext
+  const { activeDate, isEditing, dailyLog, updateDailyLogLocally } =
+    useContext(DateContext);
   const [formData, setFormData] = useState({
     basketball_rpe: 0,
     basketball_duration_minutes: "",
   });
-  // Nuevo estado para controlar qué botones mostrar
   const [hasExistingData, setHasExistingData] = useState(false);
 
-  // Buscar los datos al cargar el día
+  // Mira la memoria (dailyLog)
   useEffect(() => {
-    const fetchDailyLog = async () => {
-      try {
-        const response = await api.get(`/daily-logs/${activeDate}`);
-        // Verificamos si hay un registro y si efectivamente tiene minutos de básquet cargados
-        if (response.data && response.data.basketball_duration_minutes) {
-          setFormData({
-            basketball_rpe: response.data.basketball_rpe || 0,
-            basketball_duration_minutes:
-              response.data.basketball_duration_minutes,
-          });
-          setHasExistingData(true); // Hay datos previos
-        } else {
-          setFormData({ basketball_rpe: 0, basketball_duration_minutes: "" });
-          setHasExistingData(false); // Es una sesión nueva
-        }
-      } catch (error) {
-        console.error("Error fetching daily log:", error);
-      }
-    };
-    fetchDailyLog();
-  }, [activeDate]);
+    if (dailyLog && dailyLog.basketball_duration_minutes) {
+      setFormData({
+        basketball_rpe: dailyLog.basketball_rpe || 0,
+        basketball_duration_minutes: dailyLog.basketball_duration_minutes,
+      });
+      setHasExistingData(true);
+    } else {
+      setFormData({ basketball_rpe: 0, basketball_duration_minutes: "" });
+      setHasExistingData(false);
+    }
+  }, [dailyLog]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,18 +41,21 @@ const Basketball = () => {
     }
 
     try {
-      const currentLogRes = await api.get(`/daily-logs/${activeDate}`);
-      const currentData = currentLogRes.data || {};
-
+      // Usa el dailyLog de la memoria
       const payload = {
-        ...currentData,
+        ...dailyLog,
         date: activeDate,
         basketball_rpe: formData.basketball_rpe,
         basketball_duration_minutes: formData.basketball_duration_minutes,
       };
 
+      // Guarda en la Base de Datos
       await api.post("/daily-logs", payload);
-      setHasExistingData(true); // Al guardar exitosamente, pasamos al modo edición
+
+      // Actualiza la memoria local
+      updateDailyLogLocally(payload);
+
+      setHasExistingData(true);
       alert(
         hasExistingData
           ? "Sesión actualizada correctamente"
@@ -74,26 +68,26 @@ const Basketball = () => {
   };
 
   const handleDelete = async () => {
-    // Pedimos confirmación antes de borrar
     const confirmDelete = window.confirm(
       "¿Estás seguro de que quieres eliminar este entrenamiento?",
     );
     if (!confirmDelete) return;
 
     try {
-      const currentLogRes = await api.get(`/daily-logs/${activeDate}`);
-      const currentData = currentLogRes.data || {};
-
+      // Usa la memoria para armar el paquete de borrado
       const payload = {
-        ...currentData,
+        ...dailyLog,
         date: activeDate,
-        basketball_rpe: null, // Anulamos los datos
+        basketball_rpe: null,
         basketball_duration_minutes: null,
       };
 
+      // Borra en la Base de Datos
       await api.post("/daily-logs", payload);
 
-      // Reseteamos la vista al estado inicial
+      // Actualiza la memoria local
+      updateDailyLogLocally(payload);
+
       setFormData({ basketball_rpe: 0, basketball_duration_minutes: "" });
       setHasExistingData(false);
     } catch (error) {
@@ -154,9 +148,10 @@ const Basketball = () => {
 
         <div
           style={{
-            backgroundColor: "#e9ecef",
-            padding: "1rem",
+            backgroundColor: "var(--navbar-bg)",
+            border: "1px solid #ddd",
             borderRadius: "8px",
+            padding: "1rem",
             textAlign: "center",
           }}
         >
@@ -176,7 +171,6 @@ const Basketball = () => {
             }}
           >
             {!hasExistingData ? (
-              // Vista de Creación
               <button
                 onClick={handleSave}
                 style={{
@@ -191,7 +185,6 @@ const Basketball = () => {
                 Guardar Sesión
               </button>
             ) : (
-              // Vista de Edición / Borrado
               <>
                 <button
                   onClick={handleSave}

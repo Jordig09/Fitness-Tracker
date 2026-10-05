@@ -24,37 +24,41 @@ const Dashboard = () => {
   const getFoodColor = (rating) => {
     switch (rating) {
       case "Muy Buena":
-        return "#d4edda"; // Verde claro
+        return "var(--food-muy-buena)";
       case "Buena":
-        return "#e2f3e5"; // Verde muy pálido
+        return "var(--food-buena)";
       case "Regular":
-        return "#fff3cd"; // Amarillo suave
+        return "var(--food-regular)";
       case "Mala":
-        return "#f8d7da"; // Rojo pastel
+        return "var(--food-mala)";
       case "Muy Mala":
-        return "#dfa2a7"; // Rojo
+        return "var(--food-muy-mala)";
       default:
-        return "#f8f9fa"; // Gris (por si acaso)
+        return "var(--card-default)";
     }
   };
 
   // Función de estilo dinámico: si está completado usa el color pasado, sino gris
   const getCardStyle = (isCompleted, completedColor) => ({
     padding: "1rem",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-color)",
     borderRadius: "8px",
-    backgroundColor: isCompleted ? completedColor : "#f8f9fa",
+    backgroundColor: isCompleted ? completedColor : "var(--navbar-bg)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     gap: "10px",
     cursor: "pointer",
-    transition: "background-color 0.2s ease",
+    transition: "background-color 0.2s ease, border-color 0.2s ease",
   });
 
   const textColStyle = { flex: 1 };
-  const h3Style = { margin: "0 0 0.2rem 0", fontSize: "1.1rem" };
-  const pStyle = { margin: 0, fontSize: "0.9rem", color: "#333" };
+  const h3Style = {
+    margin: "0 0 0.2rem 0",
+    fontSize: "1.1rem",
+    color: "var(--text-color)",
+  };
+  const pStyle = { margin: 0, fontSize: "0.9rem", color: "var(--text-color)" };
 
   const iconSize = "40";
   const iconColor = "#a0a0a0";
@@ -71,7 +75,13 @@ const Dashboard = () => {
       >
         {/* Tarjeta de Musculación */}
         <div
-          style={getCardStyle(!!dailyLog?.routine_name, "#fff9c4")}
+          style={{
+            ...getCardStyle(
+              !!dailyLog?.routine_name,
+              "var(--card-musculacion)",
+            ),
+            gridColumn: "1 / -1",
+          }}
           onClick={() => navigate("/weights")}
         >
           <div style={textColStyle}>
@@ -81,7 +91,7 @@ const Dashboard = () => {
                 Rutina: <strong>{dailyLog.routine_name}</strong>
               </p>
             ) : (
-              <p style={{ ...pStyle, color: "#999" }}>Día de descanso</p>
+              <p style={pStyle}>Día de descanso</p>
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -107,17 +117,26 @@ const Dashboard = () => {
 
         {/* Tarjeta de Caminata */}
         <div
-          style={getCardStyle(!!dailyLog?.walk_completed, "#e3f2fd")}
+          style={{
+            ...getCardStyle(!!dailyLog?.walk_completed, "var(--card-caminata)"),
+            gridColumn: "1 / -1",
+          }}
           onClick={() => navigate("/weights")}
         >
           <div style={textColStyle}>
             <h3 style={h3Style}>Caminata</h3>
             {dailyLog?.walk_completed ? (
-              <p style={{ ...pStyle, color: "#0056b3", fontWeight: "bold" }}>
+              <p
+                style={{
+                  ...pStyle,
+                  color: "var(--primary)",
+                  fontWeight: "bold",
+                }}
+              >
                 ✅ Realizada
               </p>
             ) : (
-              <p style={{ ...pStyle, color: "#999" }}>No realizada</p>
+              <p style={pStyle}>No realizada</p>
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -138,10 +157,13 @@ const Dashboard = () => {
 
         {/* Tarjeta de Básquet */}
         <div
-          style={getCardStyle(
-            !!dailyLog?.basketball_duration_minutes,
-            "#ffe0b2",
-          )}
+          style={{
+            ...getCardStyle(
+              !!dailyLog?.basketball_duration_minutes,
+              "var(--card-basquet)",
+            ),
+            gridColumn: "1 / -1",
+          }}
           onClick={() => navigate("/basketball")}
         >
           <div style={textColStyle}>
@@ -159,7 +181,7 @@ const Dashboard = () => {
                 </p>
               </>
             ) : (
-              <p style={{ ...pStyle, color: "#999" }}>Sin entrenamiento</p>
+              <p style={pStyle}>Sin entrenamiento</p>
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -176,20 +198,23 @@ const Dashboard = () => {
 
         {/* Tarjeta de Alimentación */}
         <div
-          style={getCardStyle(
-            !!dailyLog?.food_rating,
-            getFoodColor(dailyLog?.food_rating),
-          )}
+          style={{
+            ...getCardStyle(
+              !!dailyLog?.food_rating,
+              getFoodColor(dailyLog?.food_rating),
+            ),
+            gridColumn: "1 / -1",
+          }}
           onClick={() => navigate("/nutrition")}
         >
           <div style={textColStyle}>
-            <h3 style={h3Style}>Nutrición</h3>
+            <h3 style={h3Style}>Alimentación</h3>
             {dailyLog?.food_rating ? (
               <p style={pStyle}>
                 Calidad: <strong>{dailyLog.food_rating}</strong>
               </p>
             ) : (
-              <p style={{ ...pStyle, color: "#999" }}>No hay datos</p>
+              <p style={pStyle}>No hay datos</p>
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -204,9 +229,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Wellness (Siempre pintado, verde pastel) */}
+        {/* Wellness */}
         <div
-          style={getCardStyle(true, "#c7c7c7")}
+          style={{
+            ...getCardStyle(true, "#c7c7c7"),
+            backgroundColor: "#c7c7c7",
+          }}
           onClick={() =>
             window.open(
               "https://docs.google.com/forms/d/e/1FAIpQLSfb-GStAqb4ip4jWYcURX6Xu7FKoWoqUxzbVrcw-wmxC4L79Q/viewform?pli=1&pli=1",
@@ -215,7 +243,7 @@ const Dashboard = () => {
           }
         >
           <div style={textColStyle}>
-            <h3 style={h3Style}>Wellness</h3>
+            <h3 style={{ ...h3Style, color: "#333" }}>Wellness</h3>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <svg
@@ -236,9 +264,13 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* RPE (Siempre pintado, verde pastel) */}
+        {/* RPE */}
         <div
-          style={getCardStyle(true, "#c7c7c7")}
+          style={{
+            ...getCardStyle(true, "#c7c7c7"),
+            backgroundColor: "#c7c7c7",
+            color: "#333",
+          }}
           onClick={() =>
             window.open(
               "https://docs.google.com/forms/d/e/1FAIpQLSfmM8LZvFdx8T48tu8iRsNISsJWffuWLxf8N_H9B1SD4wv9-w/viewform",
@@ -247,7 +279,7 @@ const Dashboard = () => {
           }
         >
           <div style={textColStyle}>
-            <h3 style={h3Style}>RPE</h3>
+            <h3 style={{ ...h3Style, color: "#333" }}>RPE</h3>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <svg
