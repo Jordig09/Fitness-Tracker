@@ -6,6 +6,9 @@
   --navbar-bg: #fff;
   --input-bg: #fff;
   --border-color: #ccc;
+  --walking-bg: #e9f2ff;
+  --walking-color: #004085;
+  --icon-color: #a0a0a0;
 
   /* Colores del calendario para nutrición */
   --food-muy-buena: #28a745;
@@ -23,8 +26,6 @@
   --card-basquet: #ffe0b2;
 
   /* Otros*/
-  --walking-bg: #e9f2ff;
-  --walking-color: #004085;
 }
 
 [data-theme="dark"] {
@@ -35,6 +36,7 @@
   --navbar-bg: #1e1e1e;
   --input-bg: #2c2c2c;
   --border-color: #444;
+  --icon-color: #e0e0e0;
 
   /* Colores del calendario (Tonos más apagados) */
   --food-muy-buena: #1e7e34;
