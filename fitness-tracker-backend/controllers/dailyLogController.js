@@ -86,6 +86,7 @@ const getCalendarSummary = async (req, res, next) => {
         dl.date, 
         dl.food_rating, 
         dl.basketball_duration_minutes,
+        dl.walk_completed,
         (SELECT COUNT(*) FROM weight_sessions ws WHERE ws.date = dl.date) as weight_sessions_count
       FROM daily_logs dl
       ORDER BY dl.date ASC;
