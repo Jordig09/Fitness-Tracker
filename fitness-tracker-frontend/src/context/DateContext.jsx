@@ -42,6 +42,9 @@ export const DateProvider = ({ children }) => {
         setDailyLog(null); // Limpiar si es un día nuevo sin caché
       }
 
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
       // Pedir a la base de datos para ver si hay datos nuevos
       try {
         const response = await api.get(`/daily-logs/${activeDate}`);
