@@ -7,6 +7,7 @@ const verifyToken = (req, res, next) => {
 
   // 2. Si no hay token, rechazamos la entrada
   if (!token) {
+    console.log("🚨 El guardia dice: No trajo ningún token");
     return res
       .status(401)
       .json({ error: "Acceso denegado. Se requiere autenticación." });
@@ -18,6 +19,7 @@ const verifyToken = (req, res, next) => {
     req.user = verified;
     next(); // Todo está en orden, lo dejamos pasar a la ruta que pidió
   } catch (error) {
+    console.log("🚨 El guardia rebotó el token por este error:", error.message);
     res.status(401).json({ error: "Token inválido o expirado." });
   }
 };
