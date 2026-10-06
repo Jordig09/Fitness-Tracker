@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return next();
+  }
   // 1. Buscamos el token en la cabecera de la petición
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // El formato es "Bearer <token>"
